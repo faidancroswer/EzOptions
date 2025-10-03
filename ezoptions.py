@@ -3089,7 +3089,7 @@ def run_original_dashboard():
         # Expiração
         expiry_date = st.sidebar.date_input(
             'Data de Expiração',
-            value=datetime.now().date() + timedelta(days=30)
+            value=datetime.now().date() + timedelta(days=7)
         )
 
         # Botão para atualizar dados
