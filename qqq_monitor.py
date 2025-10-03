@@ -1,6 +1,6 @@
 """
 Módulo de Monitoramento QQQ
-Responsável por detectar sinais válidos no módulo 'qqq' do ezoptions
+Responsável por detectar sinais válidos no módulo 'qqq' do ezoptionsverifiar 
 e executar negociações automaticamente no MT5 para o ativo US100
 """
 
@@ -26,8 +26,8 @@ def get_next_option_expiry():
         expirations = ticker.options
 
         if not expirations:
-            # Fallback: calcular próxima terceira sexta-feira
-            target_date = datetime.now() + timedelta(days=30)
+            # Fallback: usar data fixa válida (hoje + 7 dias, ou próxima sexta-feira)
+            target_date = datetime.now() + timedelta(days=7)
             while target_date.weekday() != 4:  # 4 = Friday
                 target_date += timedelta(days=1)
             return target_date.strftime('%Y-%m-%d')
@@ -40,12 +40,12 @@ def get_next_option_expiry():
                 return exp_str
 
         # Se nenhuma encontrada, usar a primeira disponível
-        return expirations[0] if expirations else (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+        return expirations[0] if expirations else (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
 
     except Exception as e:
         logger.warning(f"Erro ao obter datas de expiração: {e}")
-        # Fallback seguro
-        target_date = datetime.now() + timedelta(days=30)
+        # Fallback seguro - usar data mais curta para evitar expirações inexistentes
+        target_date = datetime.now() + timedelta(days=7)
         while target_date.weekday() != 4:
             target_date += timedelta(days=1)
         return target_date.strftime('%Y-%m-%d')
@@ -176,7 +176,7 @@ class QQQMonitor:
                     signal_detected = self._analyze_setup_for_signal(setup_number, market_data)
 
                     if signal_detected:
-                        logger.info(f"Sinal detectado no Setup {setup_number}: {signal_detected.signal_type}")
+                        logger.info(f"Sinal detectado no Setup {setup_number}: {signal_detected.get('signal_type', 'UNKNOWN')}")
 
                         # Criar objeto de sinal
                         signal = self._create_trading_signal(setup_number, signal_detected, market_data)
