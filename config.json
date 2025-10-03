@@ -1,0 +1,51 @@
+{
+  "mt5": {
+    "server": "FBS-Real",
+    "login": 111655745,
+    "password": "Street@21",
+    "path": "C:\\Program Files\\FBS MetaTrader 5\\terminal64.exe"
+  },
+  "ezoptions": {
+    "url": "http://localhost:8501",
+    "update_interval_seconds": 30,
+    "tickers": ["QQQ"],
+    "connection_timeout": 10,
+    "retry_attempts": 3
+  },
+  "trading": {
+    "symbol": "US100",
+    "lot_size": 0.01,
+    "max_positions": 2,
+    "stop_loss_pips": 50,
+    "take_profit_pips": 100,
+    "max_drawdown_percent": 5.0,
+    "confidence_based_sizing": true,
+    "max_lot_multiplier": 2.0
+  },
+  "risk_management": {
+    "max_daily_loss": 200.0,
+    "max_consecutive_losses": 3,
+    "daily_profit_target": 100.0,
+    "max_daily_trades": 10,
+    "drawdown_stop_trading": true,
+    "position_sizing_method": "confidence_based"
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "trading_system.log",
+    "max_file_size_mb": 10,
+    "backup_count": 5
+  },
+  "advanced_features": {
+    "vwap_bollinger_integration": true,
+    "dynamic_position_sizing": true,
+    "setup_confidence_weighting": true,
+    "real_time_risk_monitoring": true
+  },
+  "trading_parameters": {
+    "ticker": "US100",
+    "expiry_date": "2025-10-17",
+    "active_setups": [1, 2, 3, 4, 5, 6],
+    "check_interval": 30
+  }
+}

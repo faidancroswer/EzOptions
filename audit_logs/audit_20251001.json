@@ -1,0 +1,470 @@
+[
+  {
+    "timestamp": "2025-10-01T13:59:55.320413",
+    "event_type": "test",
+    "user_action": "dashboard",
+    "details": {
+      "message": "System test"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:03:33.851817",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:03:33.851799",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:07:20.238891",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:07:20.238860",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:17:14.280082",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:17:14.280046",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:17:45.011377",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:17:45.011348",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:17:50.231000",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:17:50.230981",
+      "qqq_price": 603.3901
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:17:50.234980",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.3901
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:22:41.147405",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:22:41.147370",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:22:53.621975",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:22:53.621930",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:22:57.683993",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:22:57.683972",
+      "qqq_price": 603.16
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:22:57.688803",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.16
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:28:30.668190",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:28:30.668155",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:28:36.843688",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:28:36.843655",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:28:41.952668",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:28:41.952630",
+      "qqq_price": 603.19
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:28:41.961458",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.19
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:31:02.645013",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:31:02.644982",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:31:10.531243",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:31:10.531206",
+      "qqq_price": 603.23
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:31:10.586618",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.23
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:31:11.125311",
+    "event_type": "manual_trade_initiated",
+    "user_action": "dashboard",
+    "details": {
+      "signal_type": "BUY",
+      "setup_name": "Alvo Acima (BULLISH BREAKOUT)",
+      "user_action": "manual_execution"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:31:11.338968",
+    "event_type": "trade_details",
+    "user_action": "dashboard",
+    "details": {
+      "symbol": "US100",
+      "order_type": "BUY",
+      "volume": 0.01,
+      "price": 24824.25,
+      "stop_loss": 24819.25,
+      "take_profit": 24834.25,
+      "setup": "Alvo Acima (BULLISH BREAKOUT)"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:31:11.427814",
+    "event_type": "execution_error",
+    "user_action": "dashboard",
+    "details": {
+      "error": "'NoneType' object has no attribute 'retcode'",
+      "setup": "Alvo Acima (BULLISH BREAKOUT)"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:46:46.309663",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:46:46.309636",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:48:37.446952",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:48:37.446916",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:49:17.180256",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:49:17.180223",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:49:26.300276",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:49:26.300242",
+      "qqq_price": 603.64
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:49:26.349984",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.64
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:50:31.390315",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:50:31.390285",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:50:36.060934",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T14:50:36.060897",
+      "qqq_price": 603.605
+    }
+  },
+  {
+    "timestamp": "2025-10-01T14:50:36.130187",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.605
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:19:15.914897",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:19:15.914872",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:19:21.411734",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:19:21.411717",
+      "qqq_price": 603.395
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:19:21.416321",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.395
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:19:22.271361",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:19:22.271330",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:19:24.676531",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:19:24.676515",
+      "qqq_price": 603.37
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:19:24.681161",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.37
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:20:07.790859",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:20:07.790831",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:20:09.954348",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:20:09.954331",
+      "qqq_price": 603.355
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:20:09.959169",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.355
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:20:33.433892",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:20:33.433866",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:20:37.021496",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:20:37.021464",
+      "qqq_price": 603.2307
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:20:37.030364",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.2307
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:13.564907",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:50:13.564881",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:16.035578",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:50:16.035560",
+      "qqq_price": 603.42
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:16.040447",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.42
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:17.477436",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:50:17.477409",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:19.460885",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:50:19.460869",
+      "qqq_price": 603.4
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:19.468033",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.4
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:35.149783",
+    "event_type": "dashboard_access",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:50:35.149753",
+      "user_agent": "streamlit_dashboard"
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:40.102974",
+    "event_type": "setup_analysis_started",
+    "user_action": "dashboard",
+    "details": {
+      "timestamp": "2025-10-01T15:50:40.102943",
+      "qqq_price": 603.455
+    }
+  },
+  {
+    "timestamp": "2025-10-01T15:50:40.117829",
+    "event_type": "setup_analysis_completed",
+    "user_action": "dashboard",
+    "details": {
+      "total_setups": 6,
+      "confirmed_setups": 1,
+      "qqq_price": 603.455
+    }
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(start:*)",
+      "Bash(curl:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd:*)",
+      "Bash(pip install:*)",
+      "Bash(timeout:*)",
+      "Bash(streamlit run:*)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(mkdir:*)",
+      "Bash(npx chrome-devtools-mcp@latest:*)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(claude mcp remove:*)",
+      "Bash(npx:*)",
+      "mcp__archon__health_check",
+      "mcp__archon__perform_rag_query",
+      "mcp__archon__search_code_examples",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

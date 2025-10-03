@@ -1,0 +1,49 @@
+=====================================
+   EzOptions Trading System - ACESSO
+=====================================
+
+🌐 ACESSO VIA DASHBOARD:
+   URL: http://localhost:8501
+
+📍 LOCALIZAÇÃO NO SIDEBAR ESQUERDO:
+   1. Acesso Rápido ao Sistema de Trading
+   2. Status do Sistema (🟢 verde = ativo)
+   3. Botões de Ação Rápida:
+      - 🎯 Iniciar Trading
+      - 📊 Ver Posições
+      - ⚙️ Configurações
+
+📋 MENU PRINCIPAL:
+   - 📊 Análise de Opções (com banner de acesso)
+   - 🎯 Trading Automatizado (página completa)
+   - 📈 Análise Avançada
+
+🚀 FORMAS DE ACESSAR O TRADING:
+
+OPÇÃO 1 - Via Sidebar:
+   1. Abra http://localhost:8501
+   2. No sidebar esquerdo, clique em "🎯 Iniciar Trading"
+   3. Use os botões rápidos para verificar posições
+
+OPÇÃO 2 - Via Menu Principal:
+   1. No menu selectbox, escolha "🎯 Trading Automatizado"
+   2. Acesse o dashboard completo de trading
+
+OPÇÃO 3 - Via Banner Principal:
+   1. Na página inicial, clique no botão azul "🎯 Abrir Trading"
+   2. Será redirecionado para a página de trading
+
+⚙️ SISTEMA DISPONÍVEL:
+   ✅ 6 setups de trading automatizados
+   ✅ Integração MT5 FBS
+   ✅ Saldo atual: $616.45
+   ✅ Gerenciamento de risco automático
+   ✅ Sistema de auditoria completo
+
+📞 ATALHOS:
+   - Executar: C:\EzOptions\iniciar_trading.bat
+   - Dashboard: http://localhost:8501
+   - Config: config.json
+   - Logs: audit_logs\
+
+=====================================

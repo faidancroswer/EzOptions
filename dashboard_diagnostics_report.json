@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-10-02T14:33:28.174968",
+  "url": "http://localhost:8501",
+  "checks": {
+    "connectivity": {
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": 0.040892,
+      "server": "TornadoServer/6.5.2"
+    },
+    "streamlit_health": {
+      "status": "PASS",
+      "response": "Non-JSON response"
+    },
+    "static_resources": [
+      {
+        "resource": "/_stcore/static/js/main.js",
+        "status": "PASS",
+        "status_code": 200,
+        "size": 1522
+      },
+      {
+        "resource": "/_stcore/static/css/main.css",
+        "status": "PASS",
+        "status_code": 200,
+        "size": 1522
+      },
+      {
+        "resource": "/static/media/logo.svg",
+        "status": "PASS",
+        "status_code": 200,
+        "size": 1522
+      }
+    ],
+    "performance": {
+      "status": "PASS",
+      "load_time_seconds": 0.01,
+      "content_size": 1522,
+      "headers": {
+        "content_type": "Unknown",
+        "cache_control": "Not set",
+        "server": "Unknown"
+      }
+    },
+    "api_endpoints": [
+      {
+        "endpoint": "/api/trading_status",
+        "status": "PASS",
+        "status_code": 200,
+        "response_time": 0.007573
+      },
+      {
+        "endpoint": "/api/account_info",
+        "status": "PASS",
+        "status_code": 200,
+        "response_time": 0.007413
+      },
+      {
+        "endpoint": "/api/active_positions",
+        "status": "PASS",
+        "status_code": 200,
+        "response_time": 0.00917
+      }
+    ]
+  }
+}
