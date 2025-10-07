@@ -47,5 +47,25 @@
     "expiry_date": "2025-10-17",
     "active_setups": [1, 2, 3, 4, 5, 6],
     "check_interval": 30
+  },
+  "duplicate_check": {
+    "time_window_minutes": 15,
+    "price_tolerance_percent": 0.1,
+    "max_similar_signals": 3,
+    "memory_hours": 24,
+    "setup_intervals": {
+      "1": {"min_interval_minutes": 0, "price_tolerance_percent": 0.2},
+      "2": {"min_interval_minutes": 0, "price_tolerance_percent": 0.2},
+      "3": {"min_interval_minutes": 0, "price_tolerance_percent": 0.15},
+      "4": {"min_interval_minutes": 0, "price_tolerance_percent": 0.15},
+      "5": {"min_interval_minutes": 0, "price_tolerance_percent": 0.1},
+      "6": {"min_interval_minutes": 0, "price_tolerance_percent": 0.25}
+    }
+  },
+  "mcp_servers": {
+    "chrome_devtools": {
+      "command": "node",
+      "args": ["./node_modules/chrome-devtools-mcp/build/src/index.js"]
+    }
   }
 }

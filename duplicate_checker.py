@@ -175,7 +175,17 @@ class DuplicateChecker:
             current_price = signal.get('current_price', 0)
 
             # Arredondar preço para reduzir granularidade
+            # Evitar divisão por zero para current_price
+            current_price = current_price if current_price != 0 else 10000.0  # Valor padrão para US100
             price_tolerance = current_price * (self.price_tolerance_percent / 100)
+            # Evitar divisão por zero para price_tolerance - garantir valor mínimo
+            if price_tolerance <= 0:
+                price_tolerance = max(10.0, current_price * 0.001)  # Mínimo 0.1% do preço ou $10
+
+            # Segurança adicional para evitar divisão por zero
+            if price_tolerance == 0:
+                price_tolerance = 10.0
+
             price_level = round(current_price / price_tolerance) * price_tolerance
 
             # Calcular janela de tempo
@@ -231,8 +241,10 @@ class DuplicateChecker:
             current_price = signal.get('current_price', 0)
             vwap_price = vwap_data.get('current_vwap', current_price)
 
-            if current_price > 0 and vwap_price > 0:
-                price_vs_vwap = (current_price - vwap_price) / vwap_price
+            if current_price != 0 and vwap_price != 0:  # Verificar != 0 para evitar divisão por zero
+                # Evitar divisão por zero para vwap_price
+                divisor = vwap_price if vwap_price != 0 else 1.0
+                price_vs_vwap = (current_price - vwap_price) / divisor
                 if price_vs_vwap > 0.005:  # 0.5% acima
                     context_indicators.append('above_vwap')
                 elif price_vs_vwap < -0.005:  # 0.5% abaixo
@@ -246,13 +258,24 @@ class DuplicateChecker:
                 upper_band = bollinger_data.get('upper_band', 0)
                 lower_band = bollinger_data.get('lower_band', 0)
 
-                if current_price > 0:
-                    if current_price > upper_band:
-                        context_indicators.append('above_bb_upper')
-                    elif current_price < lower_band:
-                        context_indicators.append('below_bb_lower')
+                # Verificar limites de Bollinger Bands para evitar problemas
+                if current_price != 0:
+                    if upper_band != 0 and lower_band != 0:  # Validação adicional
+                        if current_price > upper_band:
+                            context_indicators.append('above_bb_upper')
+                        elif current_price < lower_band:
+                            context_indicators.append('below_bb_lower')
+                        else:
+                            context_indicators.append('inside_bb')
+                    elif upper_band != 0 or lower_band != 0:  # Somente um dos limites disponível
+                        if current_price > upper_band and upper_band != 0:
+                            context_indicators.append('above_bb_upper')
+                        elif current_price < lower_band and lower_band != 0:
+                            context_indicators.append('below_bb_lower')
+                        else:
+                            context_indicators.append('inside_bb')
                     else:
-                        context_indicators.append('inside_bb')
+                        context_indicators.append('bb_unknown')  # Bandas não disponíveis
 
             # Contexto baseado em momentum (RSI se disponível)
             technical_data = signal.get('technical_indicators', {})
@@ -295,7 +318,12 @@ class DuplicateChecker:
 
             # 3. Similaridade de nível de preço (peso: 0.3)
             price_diff = abs(fingerprint1.price_level - fingerprint2.price_level)
-            price_tolerance = max(fingerprint1.price_level, fingerprint2.price_level) * 0.001  # 0.1%
+            # Evitar divisão por zero quando price_level for 0
+            max_price_level = max(fingerprint1.price_level, fingerprint2.price_level)
+            if max_price_level > 0:
+                price_tolerance = max_price_level * 0.001  # 0.1%
+            else:
+                price_tolerance = 10.0  # Valor padrão para evitar divisão por zero
 
             if price_diff <= price_tolerance:
                 similarity_score += 0.3
@@ -314,7 +342,7 @@ class DuplicateChecker:
             total_components += 0.1
 
             # Calcular média ponderada
-            if total_components > 0:
+            if total_components > 0 and total_components != 0:
                 return similarity_score / total_components
             else:
                 return 0.0
@@ -460,8 +488,8 @@ class SignalDeduplicator:
         self.config = config
         self.duplicate_checker = DuplicateChecker(config)
 
-        # Regras específicas por setup
-        self.setup_rules = {
+        # Carregar regras específicas por setup do config.json se disponível
+        default_setup_rules = {
             1: {  # Bullish Breakout
                 'min_interval_minutes': 30,
                 'price_tolerance_percent': 0.2,
@@ -493,6 +521,22 @@ class SignalDeduplicator:
                 'allow_similar_if_confidence_higher': True
             }
         }
+
+        # Tentar carregar configurações do arquivo config.json
+        try:
+            config_intervals = config.get('duplicate_check', {}).get('setup_intervals', {})
+            self.setup_rules = default_setup_rules.copy()
+
+            # Atualizar com configurações do config.json
+            for setup_num, setup_config in config_intervals.items():
+                setup_num = int(setup_num)
+                if setup_num in self.setup_rules:
+                    self.setup_rules[setup_num].update(setup_config)
+
+            logger.info(f"Setup rules loaded from config: {self.setup_rules}")
+        except Exception as e:
+            logger.warning(f"Failed to load setup rules from config: {e}")
+            self.setup_rules = default_setup_rules
 
     def should_process_signal(self, signal: Dict) -> Tuple[bool, str, Dict]:
         """

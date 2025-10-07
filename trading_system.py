@@ -305,6 +305,37 @@ class MT5Integration:
             return {'success': False, 'error': 'MT5 not connected'}
 
         try:
+            # Get symbol info for volume validation
+            symbol_info = mt5.symbol_info(symbol)
+            if not symbol_info:
+                return {'success': False, 'error': f'Could not get symbol info for {symbol}'}
+
+            # Get volume constraints
+            min_volume = symbol_info.volume_min if symbol_info.volume_min > 0 else 0.01
+            max_volume = symbol_info.volume_max if symbol_info.volume_max > 0 else 100.0
+            volume_step = symbol_info.volume_step if symbol_info.volume_step > 0 else 0.01
+
+            logging.info(f"Symbol {symbol} volume constraints - Min: {min_volume}, Max: {max_volume}, Step: {volume_step}")
+            logging.info(f"Original volume requested: {volume}")
+
+            # Adjust volume to be within limits
+            if volume < min_volume:
+                logging.warning(f"Volume {volume} below minimum {min_volume}, adjusting to {min_volume}")
+                volume = min_volume
+            elif volume > max_volume:
+                logging.warning(f"Volume {volume} above maximum {max_volume}, adjusting to {max_volume}")
+                volume = max_volume
+
+            # Round volume to valid increment
+            if volume_step > 0:
+                volume = round(volume / volume_step) * volume_step
+                volume = round(volume, 2)  # Avoid floating point precision issues
+                logging.info(f"Volume after step rounding: {volume}")
+
+            # Ensure volume is still within limits after rounding
+            volume = max(min_volume, min(volume, max_volume))
+            logging.info(f"Final volume after validation: {volume}")
+
             # Map order types
             order_type_map = {
                 'BUY': mt5.ORDER_TYPE_BUY,
@@ -315,22 +346,110 @@ class MT5Integration:
                 'SELL_STOP': mt5.ORDER_TYPE_SELL_STOP
             }
 
+            # Converter tipos numpy para Python nativos para evitar problemas com MT5 API
+            def convert_numpy_types(value):
+                import numpy as np
+                if value is None:
+                    return 0.0  # Return default for None values
+                if hasattr(value, 'item'):  # É um tipo numpy
+                    return value.item()
+                return float(value) if value is not None else 0.0
+
+            # Obter informações atualizadas do símbolo para garantir que está disponível
+            symbol_info = mt5.symbol_info(symbol)
+            if not symbol_info:
+                logging.error(f"Símbolo {symbol} não encontrado ou indisponível")
+                return {'success': False, 'error': f'Símbolo {symbol} não encontrado'}
+            
+            if not symbol_info.select:
+                logging.error(f"Símbolo {symbol} não está selecionado para negociação")
+                return {'success': False, 'error': f'Símbolo {symbol} não está selecionado'}
+            
+            if not symbol_info.visible:
+                logging.error(f"Símbolo {symbol} não está visível")
+                return {'success': False, 'error': f'Símbolo {symbol} não está visível'}
+
+            # Obter o preço atual de mercado para usar na ordem e para validação
+            current_tick = mt5.symbol_info_tick(symbol)
+            if current_tick:
+                market_price = current_tick.ask if 'BUY' in order_type else current_tick.bid
+            else:
+                logging.warning(f"Não foi possível obter preço atual para {symbol}, usando preço do sinal")
+                # Se não conseguir preço atual, usar o preço original convertido
+                market_price = convert_numpy_types(price)
+            
+            # Validar se o preço de referência é razoável para evitar valores estranhos
+            if market_price <= 0 or market_price > 100000:  # Valor de segurança razoável para US100
+                logging.error(f"Preço inválido detectado: {market_price}, usando preço de sinal convertido")
+                market_price = convert_numpy_types(price)
+
+            # Validar se o preço é válido baseado na posição de compra/venda usando o preço de mercado
+            # Ajustar SL/TP baseado no preço de mercado (ask/bid) para garantir distâncias corretas
+            if 'BUY' in order_type:
+                # Para ordens de compra: SL deve estar abaixo, TP deve estar acima do preço de mercado
+                if converted_sl != 0 and converted_sl >= market_price:
+                    logging.warning(f"Stop loss ({converted_sl}) deve ser menor que preço de mercado ({market_price}) para ordem de compra")
+                    # Ajustar SL para estar abaixo do preço de mercado
+                    converted_sl = market_price * 0.995  # Ajustar para 0.5% abaixo (mais conservador)
+                if converted_tp != 0 and converted_tp <= market_price:
+                    logging.warning(f"Take profit ({converted_tp}) deve ser maior que preço de mercado ({market_price}) para ordem de compra")
+                    # Ajustar TP para estar acima do preço de mercado
+                    converted_tp = market_price * 1.01  # Ajustar para 1% acima (mais conservador)
+            else:  # SELL
+                # Para ordens de venda: SL deve estar acima, TP deve estar abaixo do preço de mercado
+                if converted_sl != 0 and converted_sl <= market_price:
+                    logging.warning(f"Stop loss ({converted_sl}) deve ser maior que preço de mercado ({market_price}) para ordem de venda")
+                    # Ajustar SL para estar acima do preço de mercado
+                    converted_sl = market_price * 1.005  # Ajustar para 0.5% acima (mais conservador)
+                if converted_tp != 0 and converted_tp >= market_price:
+                    logging.warning(f"Take profit ({converted_tp}) deve ser menor que preço de mercado ({market_price}) para ordem de venda")
+                    # Ajustar TP para estar abaixo do preço de mercado
+                    converted_tp = market_price * 0.99  # Ajustar para 1% abaixo (mais conservador)
+
+            # Validação final: garantir distâncias mínimas para evitar erro 10016
+            if converted_sl != 0:
+                sl_distance = abs(converted_sl - market_price)
+                if sl_distance < 5:  # Distância mínima de 5 pontos
+                    if 'BUY' in order_type:
+                        converted_sl = market_price - 5
+                    else:
+                        converted_sl = market_price + 5
+                    logging.info(f"Ajustando SL para distância mínima: {converted_sl}")
+
+            if converted_tp != 0:
+                tp_distance = abs(converted_tp - market_price)
+                if tp_distance < 5:  # Distância mínima de 5 pontos
+                    if 'BUY' in order_type:
+                        converted_tp = market_price + 5
+                    else:
+                        converted_tp = market_price - 5
+                    logging.info(f"Ajustando TP para distância mínima: {converted_tp}")
+
+            # Preparar request da ordem com validação extra
+            converted_volume = convert_numpy_types(volume)
+            converted_sl = convert_numpy_types(converted_sl) if converted_sl is not None and converted_sl != 0 else 0.0
+            converted_tp = convert_numpy_types(converted_tp) if converted_tp is not None and converted_tp != 0 else 0.0
+
             request = {
                 "action": mt5.TRADE_ACTION_DEAL,
                 "symbol": symbol,
-                "volume": volume,
+                "volume": converted_volume,
                 "type": order_type_map.get(order_type, mt5.ORDER_TYPE_BUY),
-                "price": price,
-                "sl": sl,
-                "tp": tp,
-                "deviation": 10,
+                "price": market_price,
+                "sl": converted_sl,
+                "tp": converted_tp,
+                "deviation": 20,  # Aumentar desvio para dar mais flexibilidade
                 "magic": 123456,
                 "comment": "Automated Trading System",
                 "type_time": mt5.ORDER_TIME_GTC,
-                "type_filling": mt5.ORDER_FILLING_IOC,
+                "type_filling": mt5.ORDER_FILLING_FOK,  # Tentar FOK em vez de IOC
             }
 
             result = mt5.order_send(request)
+
+            # Log detalhado do resultado
+            logging.info(f"MT5 Order Result - retcode: {result.retcode}, comment: {result.comment}")
+
             if result.retcode == mt5.TRADE_RETCODE_DONE:
                 return {
                     'success': True,
@@ -339,15 +458,53 @@ class MT5Integration:
                     'volume': result.volume
                 }
             else:
+                # Log detalhado do erro
+                error_details = {
+                    'retcode': result.retcode,
+                    'comment': result.comment,
+                    'request': request,
+                    'symbol_info': {
+                        'trade_contract_size': symbol_info.trade_contract_size,
+                        'volume_min': symbol_info.volume_min,
+                        'volume_max': symbol_info.volume_max,
+                        'volume_step': symbol_info.volume_step,
+                        'point': symbol_info.point,
+                        'digits': symbol_info.digits
+                    }
+                }
+                logging.error(f"Order rejected: {result.retcode} - {result.comment}")
+                logging.error(f"Error details: {error_details}")
                 return {
                     'success': False,
-                    'error': f"Order failed: {result.retcode}",
-                    'details': result
+                    'error': f"Order rejected: {result.retcode} - {result.comment}",
+                    'retcode': result.retcode,
+                    'details': error_details
                 }
 
         except Exception as e:
             logging.error(f"Order placement error: {e}")
             return {'success': False, 'error': str(e)}
+
+    def get_symbol_info(self, symbol: str = None) -> Dict:
+        """Get symbol information including volume constraints"""
+        if not self.connected:
+            return {}
+        
+        target_symbol = symbol or 'US100'  # Default to US100 if no symbol specified
+        symbol_info = mt5.symbol_info(target_symbol)
+        
+        if symbol_info:
+            return {
+                'symbol': symbol_info.name,
+                'bid': symbol_info.bid,
+                'ask': symbol_info.ask,
+                'spread': symbol_info.spread,
+                'digits': symbol_info.digits,
+                'volume_min': symbol_info.volume_min,
+                'volume_max': symbol_info.volume_max,
+                'volume_step': symbol_info.volume_step
+            }
+        return {}
 
     def get_positions(self) -> List[Dict]:
         """Get current open positions"""

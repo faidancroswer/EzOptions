@@ -59,7 +59,7 @@ class MT5AutoTrader:
         # Configurações MT5
         self.mt5_config = config.get('mt5', {})
         self.server = self.mt5_config.get('server', 'FBS-Real')
-        self.login = self.mt5_config.get('login', 11655745)
+        self.login = self.mt5_config.get('login', 111655745)
         self.password = self.mt5_config.get('password', 'Street@21')
         self.path = self.mt5_config.get('path', 'C:\\Program Files\\MetaTrader 5\\terminal64.exe')
 
@@ -214,9 +214,14 @@ class MT5AutoTrader:
         except Exception as e:
             logger.error(f"Erro ao atualizar posições: {e}")
 
-    def place_order(self, order_type: str, volume: float, entry_price: float,
-                   stop_loss: float, take_profit: float, setup_number: int = None,
-                   confidence: float = None) -> Dict:
+    def place_order(self, order_type: str = None, volume: float = None, entry_price: float = None,
+                   stop_loss: float = None, take_profit: float = None, symbol: str = None,
+                   price: float = None, sl: float = None, tp: float = None, 
+                   setup_number: int = None, confidence: float = None) -> Dict:
+        # Handle parameter aliases
+        entry_price = price if price is not None else entry_price
+        stop_loss = sl if sl is not None else stop_loss
+        take_profit = tp if tp is not None else take_profit
         """
         Executa ordem no MT5
 
@@ -233,26 +238,134 @@ class MT5AutoTrader:
             if not self.connected:
                 return {'success': False, 'error': 'MT5 não conectado'}
 
+            # Use provided symbol or default
+            target_symbol = symbol if symbol else self.symbol
+
+            # Obter informações do símbolo para validar volume
+            symbol_info = self.get_symbol_info()
+            if not symbol_info:
+                return {'success': False, 'error': f'Não foi possível obter informações do símbolo {target_symbol}'}
+
+            # Validar volume contra limites do símbolo
+            min_volume = symbol_info.get('volume_min', 0.01)
+            max_volume = symbol_info.get('volume_max', 100.0)
+            volume_step = symbol_info.get('volume_step', 0.01)
+            
+            logger.info(f"Symbol volume constraints - Min: {min_volume}, Max: {max_volume}, Step: {volume_step}")
+            logger.info(f"Original volume requested: {volume}")
+
+            # Ajustar volume para estar dentro dos limites
+            if volume < min_volume:
+                logger.warning(f"Volume {volume} abaixo do mínimo {min_volume}, ajustando para {min_volume}")
+                volume = min_volume
+            elif volume > max_volume:
+                logger.warning(f"Volume {volume} acima do máximo {max_volume}, ajustando para {max_volume}")
+                volume = max_volume
+
+            # Arredondar volume para o incremento válido mais próximo
+            if volume_step > 0:
+                volume = round(volume / volume_step) * volume_step
+                volume = round(volume, 2)  # Evitar problemas de precisão de ponto flutuante
+                logger.info(f"Volume after step rounding: {volume}")
+
+            # Verificar se volume ainda está dentro dos limites após arredondamento
+            volume = max(min_volume, min(volume, max_volume))
+            logger.info(f"Final volume after validation: {volume}")
+
             # Verificar se já temos posições máximas
             if len(self.positions) >= self.max_positions:
                 return {'success': False, 'error': f'Limite de posições atingido ({self.max_positions})'}
 
-            # Preparar request da ordem
+            # Converter tipos numpy para Python nativos para evitar problemas com MT5 API
+            def convert_numpy_types(value):
+                import numpy as np
+                if value is None:
+                    return 0.0  # Return default for None values
+                if hasattr(value, 'item'):  # É um tipo numpy
+                    return value.item()
+                return float(value) if value is not None else 0.0
+
+            # Preparar request da ordem com validação extra
+            converted_volume = convert_numpy_types(volume)
+            converted_price = convert_numpy_types(entry_price)
+            converted_sl = convert_numpy_types(stop_loss) if stop_loss is not None and stop_loss != 0 else 0.0
+            converted_tp = convert_numpy_types(take_profit) if take_profit is not None and take_profit != 0 else 0.0
+
+            # Obter informações atualizadas do símbolo para garantir que está disponível
+            symbol_info = mt5.symbol_info(target_symbol)
+            if not symbol_info:
+                logger.error(f"Símbolo {target_symbol} não encontrado ou indisponível")
+                return {'success': False, 'error': f'Símbolo {target_symbol} não encontrado'}
+            
+            if not symbol_info.select:
+                logger.error(f"Símbolo {target_symbol} não está selecionado para negociação")
+                return {'success': False, 'error': f'Símbolo {target_symbol} não está selecionado'}
+            
+            if not symbol_info.visible:
+                logger.error(f"Símbolo {target_symbol} não está visível")
+                return {'success': False, 'error': f'Símbolo {target_symbol} não está visível'}
+
+            # Validar se o preço é válido baseado na posição de compra/venda
+            current_tick = mt5.symbol_info_tick(target_symbol)
+            if not current_tick:
+                logger.error(f"Não foi possível obter tick atual para {target_symbol}")
+                return {'success': False, 'error': f'Não foi possível obter dados do símbolo'}
+
+            # Obter o preço atual de mercado para usar na ordem e para validação
+            current_tick = mt5.symbol_info_tick(target_symbol)
+            if current_tick:
+                market_price = current_tick.ask if order_type == 'BUY' else current_tick.bid
+            else:
+                logger.warning(f"Não foi possível obter preço atual para {target_symbol}, usando preço do sinal")
+                # Se não conseguir preço atual, usar o preço original convertido
+                market_price = convert_numpy_types(entry_price)
+            
+            # Validar se o preço de referência é razoável para evitar valores estranhos
+            if market_price <= 0 or market_price > 100000:  # Valor de segurança razoável para US100
+                logger.error(f"Preço inválido detectado: {market_price}, usando preço de sinal convertido")
+                market_price = convert_numpy_types(entry_price)
+
+            # Validar se o preço é válido baseado na posição de compra/venda usando o preço original de validação
+            validation_price = converted_price  # Preço original convertido para validação
+            if order_type == 'BUY':
+                # O preço de entrada deve ser próximo do ask, e SL deve ser abaixo do preço
+                if converted_sl != 0 and converted_sl >= validation_price:
+                    logger.warning(f"Stop loss ({converted_sl}) deve ser menor que preço de entrada ({validation_price}) para ordem de compra")
+                    # Ajustar SL para ser abaixo do preço
+                    converted_sl = validation_price * 0.99  # Ajustar para 1% abaixo
+                if converted_tp != 0 and converted_tp <= validation_price:
+                    logger.warning(f"Take profit ({converted_tp}) deve ser maior que preço de entrada ({validation_price}) para ordem de compra")
+                    # Ajustar TP para ser acima do preço
+                    converted_tp = validation_price * 1.02  # Ajustar para 2% acima
+            else:  # SELL
+                # Para ordens de venda, SL deve ser acima do preço, TP deve ser abaixo
+                if converted_sl != 0 and converted_sl <= validation_price:
+                    logger.warning(f"Stop loss ({converted_sl}) deve ser maior que preço de entrada ({validation_price}) para ordem de venda")
+                    # Ajustar SL para ser acima do preço
+                    converted_sl = validation_price * 1.01  # Ajustar para 1% acima
+                if converted_tp != 0 and converted_tp >= validation_price:
+                    logger.warning(f"Take profit ({converted_tp}) deve ser menor que preço de entrada ({validation_price}) para ordem de venda")
+                    # Ajustar TP para ser abaixo do preço
+                    converted_tp = validation_price * 0.98  # Ajustar para 2% abaixo
+
+            # Preparar request da ordem - usar o preço de mercado para a ordem
             order_request = {
                 'action': mt5.TRADE_ACTION_DEAL,
-                'symbol': self.symbol,
-                'volume': volume,
+                'symbol': target_symbol,
+                'volume': converted_volume,
                 'type': mt5.ORDER_TYPE_BUY if order_type == 'BUY' else mt5.ORDER_TYPE_SELL,
-                'price': entry_price,
-                'sl': stop_loss,
-                'tp': take_profit,
-                'deviation': 10,
+                'price': market_price,
+                'sl': converted_sl,
+                'tp': converted_tp,
+                'deviation': 20,  # Aumentar desvio para dar mais flexibilidade
                 'magic': 123456,
                 'comment': f"Setup {setup_number} - Conf: {confidence:.2f}" if setup_number else "Automated",
                 'type_time': mt5.ORDER_TIME_GTC,
-                'type_filling': mt5.ORDER_FILLING_IOC,
+                'type_filling': mt5.ORDER_FILLING_FOK,  # Tentar FOK (Fill or Kill) em vez de IOC
             }
 
+            logger.info(f"Enviando ordem: {order_request}")
+            
             # Enviar ordem
             result = mt5.order_send(order_request)
 
@@ -394,6 +507,14 @@ class MT5AutoTrader:
             logger.error(error_msg)
             return {'success': False, 'error': error_msg}
 
+    def get_positions(self):
+        """Retorna lista de posições ativas"""
+        return self.positions
+
+    def get_account_info(self):
+        """Retorna informações da conta"""
+        return self.account_info
+
     def modify_position(self, ticket: int, stop_loss: float = None, take_profit: float = None) -> Dict:
         """Modifica stop loss e/ou take profit de posição"""
         try:
@@ -485,10 +606,20 @@ class MT5AutoTrader:
             lot_size = risk_amount / contract_value
 
             # Respeitar limites do símbolo
-            lot_size = max(lot_size, symbol_info.get('volume_min', 0.01))
-            lot_size = min(lot_size, symbol_info.get('volume_max', 100.0))
+            min_volume = symbol_info.get('volume_min', 0.01)
+            max_volume = symbol_info.get('volume_max', 100.0)
+            volume_step = symbol_info.get('volume_step', 0.01)
 
-            return round(lot_size, 2)
+            # Ajustar tamanho da posição dentro dos limites
+            lot_size = max(lot_size, min_volume)
+            lot_size = min(lot_size, max_volume)
+
+            # Arredondar para o passo de volume válido
+            if volume_step > 0:
+                lot_size = round(lot_size / volume_step) * volume_step
+                lot_size = round(lot_size, 2)  # Evitar problemas de precisão de ponto flutuante
+
+            return lot_size
 
         except Exception as e:
             logger.error(f"Erro ao calcular tamanho da posição: {e}")
